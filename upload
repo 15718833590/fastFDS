@@ -1,0 +1,23 @@
+@RequestMapping(value = "/uploadstream", method = RequestMethod.POST)
+	@ResponseBody
+	public String upload(@RequestParam(value="my_file",required=true) MultipartFile mf,HttpServletRequest request) throws Exception {
+		
+		
+		
+		byte[] fileBuff = mf.getBytes(); 
+		MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+		//原始文件名
+        String fn = multipartRequest.getParameter("originalName");
+        
+        if (log.isDebugEnabled())
+			log.debug(FileServerController.class + "/uploadstream->" + fn);
+        
+        String fastdfs_ip = env.getProperty("FDFS_SERVER").toString(); 
+        int fastdfs_port = Integer.parseInt(env.getProperty("FDFS_PORT")); 
+        
+        FastDFSUtils util = new FastDFSUtils(fastdfs_ip, fastdfs_port);
+		String fileExtName = fn.substring(fn.lastIndexOf(".")+1);
+		String fileUrl = util.uploadFile(fileBuff, fn, fileExtName);
+		
+		return fileUrl;
+	}
